@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Kafka;
+namespace Flysion\Kafka;
 
 /**
  * @link http://kafka.apache.org/documentation/
