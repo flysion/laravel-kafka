@@ -56,7 +56,7 @@ class HighConsumer extends \Illuminate\Console\Command
     {
         $this->logger = $this->hasOption('logger') ? \Illuminate\Support\Facades\Log::channel($this->option('logger')) : app('log');
 
-        $this->consumer = app('kafka')->resolveHighConsumer($this->argument('connection'), $this->config());
+        $this->consumer = app('kafka.highconsumer')->connection($this->argument('connection'), $this->config());
         $this->consumer->subscribe($this->option('topic'));
 
         $quit = false;

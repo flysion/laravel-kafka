@@ -3,10 +3,10 @@
  * @link https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
  */
 return [
-    'default' => env('KAFKA'),
+    'default' => env('KAFKA', 'default'),
     
     'connections' => [
-        'sdk' => [
+        'default' => [
             'config' => [
                 'metadata.broker.list' => env('KAFKA_BROKERS'),
                 'log_level' => "0",

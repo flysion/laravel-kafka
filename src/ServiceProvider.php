@@ -25,7 +25,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->commands($this->commands);
 
-        $this->app->singleton('kafka', KafkaManager::class);
+        $this->app->singleton('kafka.consumer', ConsumerManager::class);
+        $this->app->singleton('kafka.highconsumer', HighConsumerManager::class);
+        $this->app->singleton('kafka.producer', ProducerManager::class);
 
         require_once __DIR__ . '/helper.php';
     }
