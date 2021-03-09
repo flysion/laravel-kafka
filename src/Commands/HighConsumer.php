@@ -13,9 +13,9 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected $signature = 'kafka:HighConsumer {connection} {--consume-timeout=1000} {--topic=*} {--C|config=*}
                             {--logger= : 记录日志}
-                            {--data-format=raw : kafka数据格式}
+                            {--data-format=raw : 消费出来的数据的格式：raw-原值 json}
                             {--stop-when-eof : 消费完毕退出}
-                            {--handle=null : 消息处理方式，可选的值：null-什么都不做 file-写入文件 job-转到作业处理 event-转到事件}
+                            {--handle=null : 消息处理方式，可选的值：null-什么都不做 file-写入文件 job-转到作业处理 event-转到事件 callback-转到自定义处理方法}
                             
                             {--file= : 将消息写入文件}
                             
@@ -23,7 +23,9 @@ class HighConsumer extends \Illuminate\Console\Command
                             {--job-connection=sync : 作业队列连接}
                             {--job-queue= : 作业队列名称}
                             
-                            {--events=events : }';
+                            {--events=events : }
+                            
+                            {--callback= : }';
 
     /**
      * The console command description.
@@ -136,6 +138,17 @@ class HighConsumer extends \Illuminate\Console\Command
     {
         $events = $this->option('events') === 'events' ? app($this->option('events')) : $this->option('events');
         $events->dispatch($this->argument('connection') .':'. $message->topic_name, [$message->topic_name, $message->payload]);
+    }
+
+    /**
+     * @param \Rdkafka\Message $message
+     */
+    protected function handleMessageToCallback($message)
+    {
+        $callback = $this->option('callback', null);
+        if($callback) {
+            $callback($mssage);
+        }
     }
 
     /**
