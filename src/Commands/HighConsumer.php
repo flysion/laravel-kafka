@@ -23,9 +23,9 @@ class HighConsumer extends \Illuminate\Console\Command
                             {--job-connection=sync : 作业队列连接}
                             {--job-queue= : 作业队列名称}
                             
-                            {--events=events : }
+                            {--events=events}
                             
-                            {--callback= : }';
+                            {--callback=}';
 
     /**
      * The console command description.
@@ -58,11 +58,7 @@ class HighConsumer extends \Illuminate\Console\Command
     {
         $this->logger = $this->hasOption('logger') ? \Illuminate\Support\Facades\Log::channel($this->option('logger')) : app('log');
 
-<<<<<<< HEAD
         $this->consumer = app('kafka.highconsumer')->resolve($this->argument('connection'), $this->config());
-=======
-        $this->consumer = app('kafka.highconsumer')->connection($this->argument('connection'), $this->config());
->>>>>>> c2f6759aaf94ed44be7ea3b3b0d70bbcee660c7b
         $this->consumer->subscribe($this->option('topic'));
 
         $quit = false;
@@ -140,7 +136,12 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected function handleMessageToEvent($message)
     {
-        $events = $this->option('events') === 'events' ? app($this->option('events')) : $this->option('events');
+        $events = $this->option('events');
+
+        if(!($events instanceof \Illuminate\Events\Dispatcher)) {
+            $events = app($events);
+        }
+
         $events->dispatch($this->argument('connection') .':'. $message->topic_name, [$message->topic_name, $message->payload]);
     }
 
@@ -151,7 +152,7 @@ class HighConsumer extends \Illuminate\Console\Command
     {
         $callback = $this->option('callback', null);
         if($callback) {
-            $callback($mssage);
+            $callback($message);
         }
     }
 
