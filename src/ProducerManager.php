@@ -36,18 +36,10 @@ class ProducerManager
      */
     public function resolve($name, $config = [])
     {
-<<<<<<< HEAD
         $config = array_merge(
             config("kafka.connections.{$name}", []),
             $config
         );
-=======
-        $config = array_merge(config("kafka.connections.{$name}", []), $config);
-
-        if (is_null($config)) {
-            throw new \InvalidArgumentException("Kafka producer [{$name}] is not defined.");
-        }
->>>>>>> c2f6759aaf94ed44be7ea3b3b0d70bbcee660c7b
 
         return $this->create($config['config'], $config['topics'] ?? []);
     }
