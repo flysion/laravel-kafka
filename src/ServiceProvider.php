@@ -34,8 +34,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider implements Def
         $this->publishes([
             __DIR__ . '/../config/kafka.php' => $this->app->configPath('kafka.php')
         ], 'kafka');
-
-        require_once __DIR__ . '/helper.php';
     }
 
     /**
