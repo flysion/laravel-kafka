@@ -16,7 +16,7 @@
             "Flysion\\Kafka\\": "src/"
         },
         "files": [
-            "src/helper.php"
+
         ]
     },
     "extra": {
