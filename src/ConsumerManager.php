@@ -40,16 +40,18 @@ class ConsumerManager
             throw new \InvalidArgumentException("Kafka consumer [{$name}] is not defined.");
         }
 
-        return $this->create($config);
+        return $this->create($name, $config);
     }
 
     /**
+     * @param string $name
      * @param array $config
      * @return Consumer
      */
-    public function create($config)
+    public function create($name, $config)
     {
         return new Consumer(
+            $name,
             Conf::createFromArray($config)
         );
     }

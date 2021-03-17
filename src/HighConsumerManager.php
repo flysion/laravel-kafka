@@ -36,17 +36,20 @@ class HighConsumerManager
     public function resolve($name, $config = [])
     {
         return $this->create(
+            $name,
             array_merge(config("kafka.connections.{$name}.config", []), $config)
         );
     }
 
     /**
+     * @param string $name
      * @param array $config
      * @return HighConsumer
      */
-    public function create($config)
+    public function create($name, $config)
     {
         return new HighConsumer(
+            $name,
             Conf::createFromArray($config)
         );
     }

@@ -41,17 +41,19 @@ class ProducerManager
             $config
         );
 
-        return $this->create($config['config'], $config['topics'] ?? []);
+        return $this->create($name, $config['config'], $config['topics'] ?? []);
     }
 
     /**
+     * @param string $name
      * @param array $config
      * @param array $topicsConf
      * @return Producer
      */
-    public function create($config, $topicsConf = [])
+    public function create($name, $config, $topicsConf = [])
     {
         return new Producer(
+            $name,
             Conf::createFromArray($config),
             $topicsConf
         );

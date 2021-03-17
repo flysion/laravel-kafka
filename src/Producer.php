@@ -13,6 +13,11 @@ use function GuzzleHttp\Promise\inspect;
 class Producer extends \Rdkafka\Producer
 {
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
      * @var array
      */
     protected $topicsConf;
@@ -23,18 +28,28 @@ class Producer extends \Rdkafka\Producer
     private $topics;
 
     /**
+     * @param string $name
      * @param Conf $conf
      * @param array $topicsConf
      */
-    public function __construct($conf, $topicsConf = [])
+    public function __construct($name, $conf, $topicsConf = [])
     {
         parent::__construct($conf);
         $this->topicsConf = $topicsConf;
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
      * @param $name
-     * @return \RdKafka\ProducerTopic
+     * @return ProducerTopic
      */
     public function topic($name)
     {
@@ -44,7 +59,7 @@ class Producer extends \Rdkafka\Producer
     /**
      * @param $name
      * @param int $partitioner
-     * @return \RdKafka\ProducerTopic
+     * @return ProducerTopic
      */
     public function createTopic($name)
     {
@@ -54,11 +69,16 @@ class Producer extends \Rdkafka\Producer
     /**
      * @param string $name
      * @param array|TopicConf $conf
-     * @return mixed
+     * @return ProducerTopic
      */
     public function newTopic($name, $conf = null)
     {
-        return parent::newTopic($name, $conf instanceof \Rdkafka\TopicConf || $conf instanceof TopicConf ? $conf : (is_null($conf) ? null : $this->createTopicConf($conf)));
+        $conf = $conf instanceof \Rdkafka\TopicConf || $conf instanceof TopicConf ? $conf : (is_null($conf) ? null : $this->createTopicConf($conf));
+
+        return new ProducerTopic(
+            $this->getName(),
+            parent::newTopic($name, $conf)
+        );
     }
 
     /**

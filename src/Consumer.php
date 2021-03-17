@@ -11,10 +11,25 @@ namespace Flysion\Kafka;
 class Consumer extends \Rdkafka\Consumer
 {
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @param string $name
      * @param Conf $conf
      */
-    public function __construct($conf)
+    public function __construct($name, $conf)
     {
         parent::__construct($conf);
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }
