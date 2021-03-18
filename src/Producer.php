@@ -2,8 +2,6 @@
 
 namespace Flysion\Kafka;
 
-use function GuzzleHttp\Promise\inspect;
-
 /**
  * @link http://kafka.apache.org/documentation/
  * @link https://github.com/arnaud-lb/php-rdkafka
@@ -30,12 +28,10 @@ class Producer extends \Rdkafka\Producer
     /**
      * @param string $name
      * @param Conf $conf
-     * @param array $topicsConf
      */
-    public function __construct($name, $conf, $topicsConf = [])
+    public function __construct($name, $conf)
     {
         parent::__construct($conf);
-        $this->topicsConf = $topicsConf;
         $this->name = $name;
     }
 
@@ -58,12 +54,15 @@ class Producer extends \Rdkafka\Producer
 
     /**
      * @param $name
-     * @param int $partitioner
+     * @param array $config
      * @return ProducerTopic
      */
-    public function createTopic($name)
+    public function createTopic($name, array $config = [])
     {
-        return $this->newTopic($name, $this->topicsConf[$name] ?? null);
+        return $this->newTopic(
+            $name,
+            array_merge(config("{$this->name}.topics.{$name}", []), $config)
+        );
     }
 
     /**
@@ -76,7 +75,7 @@ class Producer extends \Rdkafka\Producer
         $conf = $conf instanceof \Rdkafka\TopicConf || $conf instanceof TopicConf ? $conf : (is_null($conf) ? null : $this->createTopicConf($conf));
 
         return new ProducerTopic(
-            $this->getName(),
+            $this,
             parent::newTopic($name, $conf)
         );
     }
@@ -88,5 +87,14 @@ class Producer extends \Rdkafka\Producer
     protected function createTopicConf($config)
     {
         return TopicConf::createFromArray($config);
+    }
+
+    /**
+     * 在实例销毁之前将消息发送出去
+     */
+    public function __destruct()
+    {
+        $this->flush(-1);
+        dump('hello world');
     }
 }

@@ -10,14 +10,22 @@ return [
             'config' => [
                 'metadata.broker.list' => env('KAFKA_BROKERS'),
                 'log_level' => "0",
-                'enable.auto.commit' => "false",
-                'statistics.interval.ms' => 1000,
-                'request.timeout.ms' => 20000,
+//                'statistics.interval.ms' => 1000,
+                'request.timeout.ms' => 10000,
                 'log.connection.close' => "false",
-                'auto.offset.reset' => 'earliest',
+//                'socket.timeout.ms' => 1000,
 //                'debug' => 'all',
-                'onStats' => [
 
+                // consumer
+                'auto.offset.reset' => 'earliest',
+                'enable.auto.commit' => "false",
+
+                // producer
+                'batch.num.messages' => 1000,
+                'queue.buffering.max.ms' => 500, // alias linger.ms
+
+                'onRebalance' => [
+                    \Flysion\Kafka\Listeners\Rebalance::class
                 ],
             ],
             'topics' => [

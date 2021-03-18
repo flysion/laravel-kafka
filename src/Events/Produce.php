@@ -1,16 +1,9 @@
 <?php
 
-namespace Flysion\Kafka\Jobs;
+namespace Flysion\Kafka\Events;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-
-class Produce implements ShouldQueue
+class Produce
 {
-    use Dispatchable, InteractsWithQueue, Queueable;
-
     /**
      * @var string
      */
@@ -64,27 +57,5 @@ class Produce implements ShouldQueue
         $this->msgflags = $msgflags;
         $this->key = $key;
         $this->opaque = $opaque;
-    }
-
-    /**
-     * @return string
-     */
-    public function displayName()
-    {
-        return get_class($this) . " -> {$this->producerName}.{$this->topicName}";
-    }
-
-    /**
-     * handle a job
-     */
-    public function handle()
-    {
-        \Flysion\Kafka\kafka_producer_topic("{$this->producerName}.{$this->topicName}")->produce(
-            $this->partition,
-            $this->msgflags,
-            $this->payload,
-            $this->key,
-            $this->opaque
-        );
     }
 }

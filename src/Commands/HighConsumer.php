@@ -142,7 +142,7 @@ class HighConsumer extends \Illuminate\Console\Command
             $events = app($events);
         }
 
-        $events->dispatch($this->argument('connection') .':'. $message->topic_name, [$message->topic_name, $message->payload]);
+        $events->dispatch($message->topic_name, [$this->argument('connection'), $message->topic_name, $message->payload]);
     }
 
     /**

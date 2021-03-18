@@ -9,9 +9,9 @@ namespace Flysion\Kafka;
 class ProducerTopic
 {
     /**
-     * @var string
+     * @var Producer
      */
-    private $producerName;
+    private $producer;
 
     /**
      * @var \Rdkafka\ProducerTopic
@@ -19,13 +19,21 @@ class ProducerTopic
     private $producerTopic;
 
     /**
-     * @param string $producerName
+     * @param Producer $producer
      * @param \Rdkafka\ProducerTopic $producerTopic
      */
-    public function __construct($producerName, $producerTopic)
+    public function __construct($producer, $producerTopic)
     {
-        $this->producerName = $producerName;
+        $this->producer = $producer;
         $this->producerTopic = $producerTopic;
+    }
+
+    /**
+     * @return Producer
+     */
+    public function getProducer()
+    {
+        return $this->producer;
     }
 
     /**
@@ -33,11 +41,42 @@ class ProducerTopic
      * @param $msgflags
      * @param null|string $payload
      * @param null|string $key
+     * @param null|string $opaque
      * @return \Illuminate\Foundation\Bus\PendingDispatch
      */
-    public function produceToQueue($partition, $msgflags, $payload = null, $key = null)
+    public function produceToQueue($partition, $msgflags, $payload = null, $key = null, $opaque = null)
     {
-        return \Flysion\Kafka\Jobs\Produce::dispatch($this->producerName, $this->producerTopic->getName(), $partition, $msgflags, $payload, $key);
+        return \Flysion\Kafka\Jobs\Produce::dispatch(
+            $this->producer->getName(),
+            $this->getName(),
+            $partition,
+            $msgflags,
+            $payload,
+            $key,
+            $opaque
+        );
+    }
+
+    /**
+     * @param $partition
+     * @param $msgflags
+     * @param null|string $payload
+     * @param null|string $key
+     * @return void
+     */
+    public function produce($partition, $msgflags, $payload = null, $key = null, $opaque = null)
+    {
+        app('events')->dispatch(new \Flysion\Kafka\Events\Produce(
+            $this->producer->getName(),
+            $this->getName(),
+            $payload,
+            $msgflags,
+            $payload,
+            $key,
+            $opaque
+        ));
+
+        return $this->producerTopic->produce($partition, $msgflags, $payload, $key, $opaque);
     }
 
     /**

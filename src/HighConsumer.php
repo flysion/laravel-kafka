@@ -21,7 +21,6 @@ class HighConsumer extends \Rdkafka\KafkaConsumer
      */
     public function __construct($name, $conf)
     {
-        $conf->setOnRebalanceConf([Listeners\Rebalance::class]);
         parent::__construct($conf);
         $this->name = $name;
     }
