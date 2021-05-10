@@ -95,6 +95,5 @@ class Producer extends \Rdkafka\Producer
     public function __destruct()
     {
         $this->flush(-1);
-        dump('hello world');
     }
 }
