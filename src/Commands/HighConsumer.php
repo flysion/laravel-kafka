@@ -13,19 +13,19 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected $signature = 'kafka:HighConsumer {connection} {--consume-timeout=1000} {--topic=*} {--C|config=*}
                             {--logger= : 记录日志}
-                            {--data-format=raw : 消费出来的数据的格式：raw-原值 json}
+                            {--data-decode=raw : 消费出来的数据的格式：raw-原值、json格式或其他closure}
                             {--stop-when-eof : 消费完毕退出}
-                            {--handle=null : 消息处理方式，可选的值：null-什么都不做 file-写入文件 job-转到作业处理 event-转到事件 callback-转到自定义处理方法}
+                            {--handle=null : 消息处理方式，可选的值：null-什么都不做 file-写入文件 job-通过作业处理 event-转换成事件 callback-回调函数处理}
                             
-                            {--file= : 将消息写入文件}
+                            {--file= : (handle=file)将消息写入文件}
                             
-                            {--job= : 将消息放到作业里边处理}
-                            {--job-connection=sync : 作业队列连接}
-                            {--job-queue= : 作业队列名称}
+                            {--job= : (handle=job)将消息放到作业里边处理}
+                            {--job-connection=sync : (handle=job)作业队列连接}
+                            {--job-queue= : (handle=job)作业队列名称}
                             
-                            {--events=events}
+                            {--events=events : (handle=event) 事件分发器名称 }
                             
-                            {--callback=}';
+                            {--callback= : (handle=callback) 回调函数}';
 
     /**
      * The console command description.
@@ -108,7 +108,7 @@ class HighConsumer extends \Illuminate\Console\Command
             throw new \InvalidArgumentException("Handle [{$handle}] is not supported.");
         }
 
-        $message->payload = $this->dataFormat($message->payload);
+        $message->payload = $this->dataDecode($message->payload);
         $this->{$method}($message);
     }
 
@@ -150,10 +150,8 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected function handleMessageToCallback($message)
     {
-        $callback = $this->option('callback', null);
-        if($callback) {
-            $callback($message);
-        }
+        $callback = $this->option('callback');
+        $callback($message);
     }
 
     /**
@@ -168,13 +166,17 @@ class HighConsumer extends \Illuminate\Console\Command
      * @param $data
      * @return mixed
      */
-    protected function dataFormat($data)
+    protected function dataDecode($data)
     {
-        $dataFormat = $this->option('data-format');
-        $method = 'dataFormat' . ucfirst(Str::camel($dataFormat));
+        $dataDecode = $this->option('data-format');
 
+        if(is_callable($dataDecode)) {
+            return $dataDecode($data);
+        }
+
+        $method = 'dataDecode' . ucfirst(Str::camel($dataDecode));
         if(!method_exists($this, $method)) {
-            throw new \InvalidArgumentException("Data fromat [{$dataFormat}] is not supported.");
+            throw new \InvalidArgumentException("Data fromat [{$dataDecode}] is not supported.");
         }
 
         return $this->{$method}($data);
@@ -185,7 +187,7 @@ class HighConsumer extends \Illuminate\Console\Command
      * @param $data
      * @return mixed
      */
-    protected function dataFormatRaw($data)
+    protected function dataDecodeRaw($data)
     {
         return $data;
     }
@@ -195,7 +197,7 @@ class HighConsumer extends \Illuminate\Console\Command
      * @param string $data
      * @return array|bool|float|int|null|object|string
      */
-    protected function dataFormatJson($data)
+    protected function dataDecodeJson($data)
     {
         return \GuzzleHttp\Utils::jsonDecode($data, true);
     }

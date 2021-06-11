@@ -9,7 +9,6 @@ class Rebalance
         switch ($event->err) {
             case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
                 $event->kafka->assign($event->partitions);
-                dump($event->partitions);
                 break;
             case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
                 $event->kafka->assign(NULL);
