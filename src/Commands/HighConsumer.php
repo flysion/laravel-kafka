@@ -168,7 +168,7 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected function dataDecode($data)
     {
-        $dataDecode = $this->option('data-format');
+        $dataDecode = $this->option('data-decode');
 
         if(is_callable($dataDecode)) {
             return $dataDecode($data);
