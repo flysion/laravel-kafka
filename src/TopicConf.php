@@ -40,24 +40,15 @@ class TopicConf extends \Rdkafka\TopicConf
      * @param array $config
      * @return TopicConf
      */
-    public function setMany($config)
-    {
-        foreach($config as $key => $value)
-        {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $config
-     * @return TopicConf
-     */
     public static function createFromArray($config)
     {
         $instance = new static();
-        $instance->setMany($config);
+
+        foreach($config as $key => $value)
+        {
+            $instance->set($key, $value);
+        }
+
         return $instance;
     }
 }

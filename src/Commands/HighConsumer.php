@@ -2,6 +2,7 @@
 
 namespace Flysion\Kafka\Commands;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
 class HighConsumer extends \Illuminate\Console\Command
@@ -56,6 +57,18 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     public function handle()
     {
+//         $workerNum = $this->option('worker-num');
+//         if($workerNum > 1) {
+//             $workers = [];
+
+//             for($i = 0; $i < $workerNum; $i++) {
+// //                Artisan::call([$this->name], $_SERVER['argv']);
+// //                $worker = proc_open($cmd, [['pipe', 'r'], ['pipe', 'w']], $pipes, null, $env);
+//             }
+//         }
+
+        //
+
         $this->logger = $this->hasOption('logger') ? \Illuminate\Support\Facades\Log::channel($this->option('logger')) : app('log');
 
         $this->consumer = app('kafka.highconsumer')->resolve($this->argument('connection'), $this->config());

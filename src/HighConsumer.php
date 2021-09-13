@@ -24,12 +24,4 @@ class HighConsumer extends \Rdkafka\KafkaConsumer
         parent::__construct($conf);
         $this->name = $name;
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
 }

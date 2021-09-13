@@ -5,14 +5,14 @@ namespace Flysion\Kafka\Events;
 class Produce
 {
     /**
-     * @var string
+     * @var \Flysion\Kafka\Producer
      */
-    protected $producerName;
+    protected $producer;
 
     /**
-     * @var string
+     * @var \Flysion\Kafka\ProducerTopic
      */
-    protected $topicName;
+    protected $topic;
 
     /**
      * @var string

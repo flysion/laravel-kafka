@@ -23,10 +23,6 @@ return [
                 // producer
                 'batch.num.messages' => 1000,
                 'queue.buffering.max.ms' => 500, // alias linger.ms
-
-                'onRebalance' => [
-                    \Flysion\Kafka\Listeners\Rebalance::class
-                ],
             ],
             'topics' => [
 

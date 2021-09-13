@@ -31,7 +31,7 @@ class ProducerTopic
     /**
      * @return Producer
      */
-    public function getProducer()
+    public function producer()
     {
         return $this->producer;
     }
@@ -47,8 +47,8 @@ class ProducerTopic
     public function produceToQueue($partition, $msgflags, $payload = null, $key = null, $opaque = null)
     {
         return \Flysion\Kafka\Jobs\Produce::dispatch(
-            $this->producer->getName(),
-            $this->getName(),
+            $this->producer->name,
+            $this->getName()/* \RdKafka\Topic::getName */,
             $partition,
             $msgflags,
             $payload,
@@ -67,8 +67,8 @@ class ProducerTopic
     public function produce($partition, $msgflags, $payload = null, $key = null, $opaque = null)
     {
         app('events')->dispatch(new \Flysion\Kafka\Events\Produce(
-            $this->producer->getName(),
-            $this->getName(),
+            $this->producer,
+            $this,
             $payload,
             $msgflags,
             $payload,

@@ -24,12 +24,4 @@ class Consumer extends \Rdkafka\Consumer
         parent::__construct($conf);
         $this->name = $name;
     }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
 }

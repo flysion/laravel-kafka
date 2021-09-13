@@ -79,12 +79,17 @@ class Produce implements ShouldQueue
      */
     public function handle()
     {
-        \Flysion\Kafka\kafka_producer_topic("{$this->producerName}.{$this->topicName}")->produce(
+        $producerTopic = \Flysion\Kafka\kafka_producer_topic("{$this->producerName}.{$this->topicName}");
+
+        $producerTopic->produce(
             $this->partition,
             $this->msgflags,
             $this->payload,
             $this->key,
             $this->opaque
         );
+
+        // 指定调用将阻塞等待事件的最长时间（以毫秒为单位）。对于非阻塞调用，提供 0 作为timeout_ms。要无限期地等待事件，请提供 -1。
+        $producerTopic->producer()->poll(0);
     }
 }

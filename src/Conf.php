@@ -11,9 +11,20 @@ namespace Flysion\Kafka;
 class Conf extends \Rdkafka\Conf
 {
     /**
-     * @var
+     *
      */
-    private $dispatcher;
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->listenError();
+        $this->listenDrMsg();
+        $this->listenStats();
+        $this->listenLog();
+        $this->listenRebalance();
+
+        app('events')->listen(Events\Rebalance::class, Listeners\Rebalance::class);
+    }
 
     /**
      * @param string $key
@@ -34,80 +45,52 @@ class Conf extends \Rdkafka\Conf
     }
 
     /**
-     * @return \Illuminate\Events\Dispatcher
+     * 绑定 error 回调，并触发事件
      */
-    protected function createDispatcher()
-    {
-        return (new \Illuminate\Events\Dispatcher())->setQueueResolver(function () {
-            return app()->make(\Illuminate\Contracts\Queue\Factory::class);
-        });
-    }
-
-    /**
-     * @return \Illuminate\Events\Dispatcher
-     */
-    protected function dispatcher()
-    {
-        return $this->dispatcher = $this->dispatcher ?? $this->createDispatcher();
-    }
-
-    /**
-     * @param array $listeners
-     */
-    public function setOnErrorConf($listeners)
+    public function listenError()
     {
         $this->setErrorCb(function($kafka, $err, $reason) {
             $event = new Events\Error();
             $event->kafka = $kafka;
             $event->err = $err;
             $event->reason = $reason;
-            $this->dispatcher()->dispatch(Events\Error::class, $event);
-        });
 
-        foreach($listeners as $listener) {
-            $this->dispatcher()->listen(Events\Error::class, $listener);
-        }
+            app('events')->dispatch(Events\Error::class, $event);
+        });
     }
 
     /**
-     * @param array $listeners
+     * 绑定 drMsg 回调，并触发事件
      */
-    public function setOnDrMsgConf($listeners)
+    public function listenDrMsg()
     {
         $this->setDrMsgCb(function($kafka, $message) {
             $event = new Events\DrMsg();
             $event->kafka = $kafka;
             $event->message = $message;
-            $this->dispatcher()->dispatch(Events\DrMsg::class, $event);
-        });
 
-        foreach($listeners as $listener) {
-            $this->dispatcher()->listen(Events\DrMsg::class, $listener);
-        }
+            app('events')->dispatch(Events\DrMsg::class, $event);
+        });
     }
 
     /**
-     * @param array $listeners
+     * 绑定 stats 回调，并触发事件
      */
-    public function setOnStatsConf($listeners)
+    public function listenStats()
     {
         $this->setStatsCb(function($kafka, $json, $len) {
             $event = new Events\Stats();
             $event->kafka = $kafka;
             $event->stats = \GuzzleHttp\Utils::jsonDecode($json, true);
-            $this->dispatcher()->dispatch(Events\Stats::class, $event);
 
+            app('events')->dispatch(Events\Stats::class, $event);
         });
-
-        foreach($listeners as $listener) {
-            $this->dispatcher()->listen(Events\Stats::class, $listener);
-        }
     }
 
     /**
-     * @param array $listeners
+     * 绑定 log 回调，并触发事件
      */
-    public function setOnLogConf($listeners)
+    public function listenLog()
     {
         $this->setLogCb(function($kafka, $level, $facility, $message) {
             $event = new Events\Log();
@@ -115,45 +98,24 @@ class Conf extends \Rdkafka\Conf
             $event->level = $level;
             $event->facility = $facility;
             $event->message = $message;
-            $this->dispatcher()->dispatch(Events\Log::class, $event);
 
+            app('events')->dispatch(Events\Log::class, $event);
         });
-
-        foreach($listeners as $listener) {
-            $this->dispatcher()->listen(Events\Log::class, $listener);
-        }
     }
 
     /**
-     * @param array $listeners
+     * 绑定 rebalance 回调，并触发事件
      */
-    public function setOnRebalanceConf($listeners)
+    public function listenRebalance()
     {
         $this->setRebalanceCb(function($kafka, $err, $partitions = null) {
             $event = new Events\Rebalance();
             $event->kafka = $kafka;
             $event->err = $err;
             $event->partitions = $partitions;
-            $this->dispatcher()->dispatch(Events\Rebalance::class, $event);
+
+            app('events')->dispatch(Events\Rebalance::class, $event);
         });
-
-        foreach($listeners as $listener) {
-            $this->dispatcher()->listen(Events\Rebalance::class, $listener);
-        }
-    }
-
-    /**
-     * @param array $config
-     * @return Conf
-     */
-    public function setMany($config)
-    {
-        foreach($config as $key => $value)
-        {
-            $this->set($key, $value);
-        }
-
-        return $this;
     }
 
     /**
@@ -163,7 +125,12 @@ class Conf extends \Rdkafka\Conf
     public static function createFromArray($config)
     {
         $instance = new static();
-        $instance->setMany($config);
+
+        foreach($config as $key => $value)
+        {
+            $instance->set($key, $value);
+        }
+
         return $instance;
     }
 }
