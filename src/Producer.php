@@ -36,14 +36,6 @@ class Producer extends \Rdkafka\Producer
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
      * @param $name
      * @return ProducerTopic
      */

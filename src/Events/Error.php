@@ -5,7 +5,7 @@ namespace Flysion\Kafka\Events;
 class Error
 {
     /**
-     * @var
+     * @var \Rdkafka|\Flysion\Kafka\Consumer|\Flysion\Kafka\HighConsumer|\Flysion\Kafka\Producer
      */
     public $kafka;
 

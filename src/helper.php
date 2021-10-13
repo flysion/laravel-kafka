@@ -6,6 +6,7 @@ namespace Flysion\Kafka;
  * 将 rdkafka 配置名称转换成驼峰命名
  *
  * @param string $str
+ * @return string
  */
 function configname2camel($str)
 {
@@ -14,7 +15,7 @@ function configname2camel($str)
 
 /**
  * @param string|null $name
- * @return \Flysion\Kafka\Producer
+ * @return \Flysion\Kafka\Producer|\Flysion\Kafka\ProducerManager
  */
 function kafka_producer($name = null)
 {
@@ -23,7 +24,7 @@ function kafka_producer($name = null)
 
 /**
  * @param $name
- * @return \Rdkafka\ProducerTopic
+ * @return \Flysion\Kafka\ProducerTopic
  */
 function kafka_producer_topic($name)
 {
@@ -33,7 +34,7 @@ function kafka_producer_topic($name)
 
 /**
  * @param string|null $name
- * @return \Flysion\Kafka\Consumer
+ * @return \Flysion\Kafka\HighConsumer|\Flysion\Kafka\HighConsumerManager
  */
 function kafka_high_consumer($name = null)
 {
@@ -42,7 +43,7 @@ function kafka_high_consumer($name = null)
 
 /**
  * @param string|null $name
- * @return \Flysion\Kafka\Consumer
+ * @return \Flysion\Kafka\Consumer|\Flysion\Kafka\ConsumerManager
  */
 function kafka_consumer($name = null)
 {
