@@ -29,12 +29,12 @@ class ConsumerManager
 
     /**
      * @param string $name
-     * @param array $config
+     * @param array $extraConfig
      * @return Consumer
      */
-    public function resolve($name, $config = [])
+    public function resolve($name, $extraConfig = [])
     {
-        $config = array_merge(config("kafka.connections.{$name}.config", []), $config);
+        $config = array_merge(config("kafka.connections.{$name}.config", []), $extraConfig);
 
         if (is_null($config)) {
             throw new \InvalidArgumentException("Kafka consumer [{$name}] is not defined.");

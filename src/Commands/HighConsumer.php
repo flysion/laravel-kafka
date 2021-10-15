@@ -57,19 +57,11 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     public function handle()
     {
-//         $workerNum = $this->option('worker-num');
-//         if($workerNum > 1) {
-//             $workers = [];
-
-//             for($i = 0; $i < $workerNum; $i++) {
-// //                Artisan::call([$this->name], $_SERVER['argv']);
-// //                $worker = proc_open($cmd, [['pipe', 'r'], ['pipe', 'w']], $pipes, null, $env);
-//             }
-//         }
-
-        //
-
-        $this->logger = $this->hasOption('logger') ? \Illuminate\Support\Facades\Log::channel($this->option('logger')) : app('log');
+        if($logger = $this->option('logger')) {
+            $this->logger = \Illuminate\Support\Facades\Log::channel($logger);
+        } else {
+            $this->logger = app('log');
+        }
 
         $this->consumer = app('kafka.highconsumer')->resolve($this->argument('connection'), $this->config());
         $this->consumer->subscribe($this->option('topic'));
@@ -122,6 +114,7 @@ class HighConsumer extends \Illuminate\Console\Command
         }
 
         $message->payload = $this->dataDecode($message->payload);
+
         $this->{$method}($message);
     }
 
@@ -155,7 +148,9 @@ class HighConsumer extends \Illuminate\Console\Command
             $events = app($events);
         }
 
-        $events->dispatch($message->topic_name, [$this->argument('connection'), $message->topic_name, $message->payload]);
+        $eventName = $this->argument('connection') .':'. $message->topic_name;
+
+        $events->dispatch($eventName, [$this->argument('connection'), $eventName, $message->payload]);
     }
 
     /**
@@ -163,8 +158,7 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     protected function handleMessageToCallback($message)
     {
-        $callback = $this->option('callback');
-        $callback($message);
+        call_user_func_array($this->option('callback'), [ $message ]);
     }
 
     /**
