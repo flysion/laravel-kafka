@@ -148,7 +148,7 @@ class HighConsumer extends \Illuminate\Console\Command
             $events = app($events);
         }
 
-        $eventName = $this->argument('connection') .':'. $message->topic_name;
+        $eventName = 'kafka:' . $this->argument('connection') .':'. $message->topic_name;
 
         $events->dispatch($eventName, [$this->argument('connection'), $eventName, $message->payload]);
     }
