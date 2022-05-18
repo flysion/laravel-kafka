@@ -16,6 +16,7 @@ class HighConsumer extends \Illuminate\Console\Command
                             {--logger= : 记录日志}
                             {--data-decode=raw : 消费出来的数据的格式：raw-原值、json格式或其他closure}
                             {--stop-when-eof : 消费完毕退出}
+                            {--ignore-error : 忽略错误}
                             {--handle=null : 消息处理方式，可选的值：null-什么都不做 file-写入文件 job-通过作业处理 event-转换成事件 callback-回调函数处理}
                             
                             {--file= : (handle=file)将消息写入文件}
@@ -76,6 +77,8 @@ class HighConsumer extends \Illuminate\Console\Command
             $quit = true;
         });
 
+        $ignoreError = $this->option('ignore-error');
+        
         while (!$quit) {
             pcntl_signal_dispatch();
 
@@ -84,7 +87,15 @@ class HighConsumer extends \Illuminate\Console\Command
             switch ($message->err) {
                 case RD_KAFKA_RESP_ERR_NO_ERROR:
                     $this->logger->debug('consume.', (array)$message);
-                    $this->handleMessage($message);
+                    if($ignoreError) {
+                        try {
+                            $this->handleMessage($message);
+                        } catch(\Throwable $e) {
+                            $this->logger->error(sprintf('[kafkaConsumerError] %s', $e->getMessage()), (array)$message);
+                        }
+                    } else {
+                        $this->handleMessage($message);
+                    }
                     $this->consumer->commit();
                     break;
                 case RD_KAFKA_RESP_ERR__PARTITION_EOF:
