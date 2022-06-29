@@ -9,12 +9,15 @@ class HighConsumer extends \Illuminate\Console\Command
      *
      * @var string
      */
-    protected $signature = 'kafka:HighConsumer {connection} {--consume-timeout=1000} {--topic=*} {--C|config=*}
-                            {--logger= : 记录日志}
-                            {--ignore-error : 忽略错误}
-                            {--deserializer=raw : 数据格式解析}
-                            {--processor=* : 消息处理方式，可选的值：null/file/job/event}
-                            {--O|option=*}';
+    protected $signature = 'kafka:HighConsumer {connection : kafka 连接}
+                            {--consume-timeout=1000 : 数据消费超时时间（毫秒，见 https://arnaud.le-blanc.net/php-rdkafka-doc/phpdoc/rdkafka-kafkaconsumer.consume.html）}
+                            {--topic=* : kafka topic}
+                            {--C|config=* : kafka 配置（见 https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md）}
+                            {--logger= : 记录日志的日志通道}
+                            {--ignore-error : 出现错误时忽略错误而不是终止消费}
+                            {--deserializer=raw : 数据解析器（可选值：raw/json，也可以是一个处理器的类名）}
+                            {--processor=* : 消息处理器（可选值：null/file/job/event，也可以是一个处理器的类名）}
+                            {--O|option=* : 配置数据解析器和消息处理器的选项}';
 
     /**
      * The console command description.
