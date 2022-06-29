@@ -48,17 +48,16 @@ class HighConsumer extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $consumer = app('kafka.highconsumer')->resolve($this->argument('connection'), $this->parseOptions($this->option("config")));
-        $consumer->subscribe($this->option('topic'));
+        $this->consumer()->subscribe($this->option('topic'));
 
         $quit = false;
 
-        pcntl_signal(SIGTERM/*15*/, function ($signal) use (&$quit, $consumer) {
+        pcntl_signal(SIGTERM/*15*/, function ($signal) use (&$quit) {
             $this->logger()->info("quit", ['signal' => $signal]);
             $quit = true;
         });
 
-        pcntl_signal(SIGINT/*2 or ctrl+c*/, function ($signal) use (&$quit, $consumer) {
+        pcntl_signal(SIGINT/*2 or ctrl+c*/, function ($signal) use (&$quit) {
             $this->logger()->info("quit", ['signal' => $signal]);
             $quit = true;
         });
@@ -68,10 +67,10 @@ class HighConsumer extends \Illuminate\Console\Command
         while (!$quit) {
             pcntl_signal_dispatch();
 
-            $message = $consumer->consume(intval($this->option('consume-timeout')));
+            $message = $this->consumer()->consume(intval($this->option('consume-timeout')));
 
             try {
-                $this->handleMessage($consumer, $message);
+                $this->handleMessage($message);
             } catch (\Throwable $e) {
                 $this->error($e);
                 $this->logger()->error($e, (array)$message);
@@ -82,22 +81,21 @@ class HighConsumer extends \Illuminate\Console\Command
             }
         }
 
-        $consumer->unsubscribe();
-        $consumer->close();
+        $this->consumer()->unsubscribe();
+        $this->consumer()->close();
     }
 
     /**
-     * @param \Flysion\Kafka\Consumer $consumer
      * @param \Rdkafka\Message $message
      * @return boolean
      */
-    protected function handleMessage($consumer, $message)
+    protected function handleMessage($message)
     {
         switch ($message->err) {
             case RD_KAFKA_RESP_ERR_NO_ERROR:
                 $this->logger()->debug('[consumer]', (array)$message);
                 $this->process($message);
-                $consumer->commit($message);
+                $this->consumer()->commit($message);
                 break;
             case RD_KAFKA_RESP_ERR__PARTITION_EOF:
                 $this->logger()->info($message->errstr(), (array)$message);
@@ -129,6 +127,20 @@ class HighConsumer extends \Illuminate\Console\Command
         }
 
         return $this->logger;
+    }
+
+    /**
+     * @return \Flysion\Kafka\Consumer
+     */
+    protected function comsumer() {
+        if(!is_null($this->consumer)) {
+            return $this->consumer;
+        }
+
+        return $this->consumer = app('kafka.highconsumer')->resolve(
+            $this->argument('connection'),
+            $this->parseOptions($this->option("config"))
+        );
     }
 
     /**
