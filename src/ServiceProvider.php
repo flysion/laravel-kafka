@@ -42,8 +42,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider implements Def
         $this->app->alias(Processor\File::class, 'processor.file');
         $this->app->singleton(Processor\Job::class);
         $this->app->alias(Processor\Job::class, 'processor.job');
-        $this->app->singleton(Processor\Null::class);
-        $this->app->alias(Processor\Null::class, 'processor.null');
+        $this->app->singleton(Processor\None::class);
+        $this->app->alias(Processor\None::class, 'processor.null');
 
         $this->publishes([
             __DIR__ . '/../config/kafka.php' => $this->app->configPath('kafka.php')

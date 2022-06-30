@@ -2,7 +2,7 @@
 
 namespace Flysion\Kafka\Processor;
 
-class Null
+class None
 {
     /**
      * @param mixed $data

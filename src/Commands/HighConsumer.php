@@ -132,7 +132,7 @@ class HighConsumer extends \Illuminate\Console\Command
     /**
      * @return \Flysion\Kafka\Consumer
      */
-    protected function comsumer() {
+    protected function consumer() {
         if(!is_null($this->consumer)) {
             return $this->consumer;
         }
